@@ -14,7 +14,7 @@ def analyze_paper_structured():
     # Initialize the client
     client = InferenceClient(
         provider="cerebras",  # or use "auto" for automatic selection
-        api_key="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",
+        api_key="",
     )
     
     # Example paper text (you can replace this with any research paper)
