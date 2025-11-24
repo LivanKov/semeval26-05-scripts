@@ -42,7 +42,7 @@ def main() -> None:
         "-f",
         "--fields",
         nargs="*",
-        default=["choices", "average", "stdev", "nonsensical"],
+        default=["choices", "average", "stdev", "nonsensical", "sample_id"],
         help="Optional explicit list of field names to strip",
     )
     args = parser.parse_args()
