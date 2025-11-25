@@ -103,7 +103,6 @@ def main() -> None:
 
     for key,entry in data.items():
         json_str = json.dumps(entry)
-        json_id = key
 
         prediction = request_prediction(
             client,
