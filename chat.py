@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model-id",
-        default=LLAMA
+        default=GPT
     )
     parser.add_argument(
         "--token",
@@ -79,8 +79,32 @@ def request_prediction(
         messages=messages,
         response_format=RESPONSE_FORMAT,
     )
-    content = response.choices[0].message.content
-    payload = json.loads(content)
+    content = response.choices[0].message.content.strip()
+    try:
+        payload = json.loads(content)
+        
+        if isinstance(payload, dict) and len(payload) == 1 and list(payload.keys())[0].isdigit():
+            only_key = list(payload.keys())[0]
+            payload = {"id": only_key, "prediction": payload[only_key]}
+        elif isinstance(payload, dict):
+            if "object_number" in payload and "likelihood" in payload:
+                payload = {
+                    "id": str(payload["object_number"]),
+                    "prediction": int(payload["likelihood"])
+                }
+        else:
+            pass
+    except Exception:
+        import re
+        id_match = re.search(r'"?id"?\s*[:=]\s*"?(?P<id>\d+)"?', content)
+        pred_match = re.search(r'"?prediction"?\s*[:=]\s*"?(?P<pred>[1-5])"?', content)
+        
+        if not (id_match and pred_match):
+            raise ValueError(f"Could not parse response: {content}")
+        payload = {
+        "id": id_match.group("id"),
+        "prediction": int(pred_match.group("pred"))
+    }
     return PredictionResponse(**payload)
 
 
@@ -92,12 +116,12 @@ def read_json(path: str | Path):
 
 
 def main() -> None:
-    data = read_json("data/dev.cleaned.minified.json")
+    data = read_json("data/dev_majority.json")
     #print(data["501"])
 
     args = parse_args()
     client = InferenceClient(
-        provider="cerebras",
+        ##provider="cerebras",
         api_key=args.token
     )
 
@@ -112,7 +136,7 @@ def main() -> None:
         )
         out_dir = Path("output")
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_file = out_dir / "output_llama.jsonl"
+        out_file = out_dir / "gpt.jsonl"
         with out_file.open("a", encoding="utf-8") as f:
             f.write(prediction.model_dump_json() + "\n")
 
