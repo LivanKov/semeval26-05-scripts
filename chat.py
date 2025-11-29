@@ -22,6 +22,7 @@ DEFAULT_SYSTEM_PROMPT = (
     "'sample_id' references the id of the sample and is not important for the evaluation."
     "'example_sentence' provides a general example of a sentence in which this word might be used and can also be used for evaluation"
     "Your task is to grade the probability of 'judged_meaning' actually being the right one within the given context. You have to grade it on a scale of 1 (very unlikely to be true) to 5(very likely to be true)."
+    "You are given the majority vote of the participants. You should be the closest possible to that majority vote. If it's unclear for a human, you should reflect it."
 )
 
 
