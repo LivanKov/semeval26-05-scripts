@@ -1,3 +1,18 @@
+"""
+format_check.py
+---------------
+Validate predictions JSONL formatting against gold data.
+
+This module provides a single function `check_formatting(filepath, gold_data)`
+which verifies that a newline-delimited JSON predictions file contains one
+valid JSON object per line, that each object has a `prediction` value in
+the expected range (1–5) and that the `id`s match those expected in the
+provided `gold_data` mapping.
+
+The function returns True when the file is valid and False otherwise.
+It prints warnings and errors to stdout to assist debugging.
+"""
+
 import json
 import sys
 
@@ -13,6 +28,7 @@ def check_formatting(filepath: str, gold_data: dict) -> bool:
     """
     with open(filepath, "r") as f:
         lines = f.readlines()
+
     questionable_lines = []
     error_lines = []
     expected_ids = [v["id"] for v in gold_data]
@@ -55,7 +71,7 @@ def check_formatting(filepath: str, gold_data: dict) -> bool:
     if questionable_lines:
         print("Warning: The following lines do not have expected values (1-5). Evaluation can still take place but please check your data.")
         print(questionable_lines)
-        
+
     return True
 
 
