@@ -6,10 +6,24 @@ import json
 
 import statistics
 from scipy.stats import spearmanr
-
 """
-Usage: python3 scoring.py ref_filepath pred_filepath output_filepath
-Spearman and Accuracy scores will be printed on command line, and scores will be written to the output filepath.
+scoring.py
+----------
+Script to evaluate model predictions against a gold newline-delimited
+JSON reference file. Computes two metrics:
+    - Spearman rank correlation between predictions and the human mean.
+    - Accuracy within human-level variability (prediction within +/-1 or
+        within +/- standard deviation of the human average).
+
+Usage:
+        python3 scoring.py ref_filepath pred_filepath output_filepath
+
+The script expects the reference file to be a JSONL file where each line
+contains a JSON object with `id` and `label` (a list of human judgments).
+Example gold line: {"id": 501, "label": [1,2,3,3,4]}
+
+Predictions are expected to be a JSONL file with objects containing
+`id` and `prediction`.
 """
 
 from format_check import check_formatting

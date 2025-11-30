@@ -1,15 +1,37 @@
+"""
+evaluate.py
+-----------
+Utility script that evaluates model predictions against human-annotated
+gold data. It calculates and prints two metrics:
+        1) Spearman rank correlation between predictions and human mean scores.
+        2) Accuracy within human-level variability (within +/- 1 or +/- 1 stddev).
+
+Usage:
+        python3 evaluate.py <predictions.jsonl> <split>
+Example:
+        python3 evaluate.py predictions/random_predictions.jsonl dev
+
+Input:
+- predictions.jsonl: a newline-delimited JSON file where each line contains
+    a JSON object with at least the keys `id` (string or numeric) and
+    `prediction` (integer rating 1-5). Example: {"id":"501","prediction":4}
+- data/<split>.json: dataset providing gold labels in the expected format:
+    A dictionary where each key is the sample id and the value includes
+    a `choices` list of the human judgments.
+
+Output:
+- Prints Spearman correlation (and p-value) and the accuracy within
+    standard deviation to stdout.
+
+This script does not modify any data; it simply computes metrics and
+prints them. It depends on `scipy.stats.spearmanr` and `format_check.check_formatting`.
+"""
+
 import sys
 import os
 import json
 import statistics
 from scipy.stats import spearmanr
-
-"""
-Usage: python3 evaluate.py filepath set
-filepath: Path to the predictions .jsonl file, e.g. predictions/random_predictions.jsonl 
-set: The split to test on (dev, test, train) - Refers to the files in data/ directory.
-Spearman and Accuracy scores will be printed on command line.
-"""
 
 from format_check import check_formatting
 
@@ -20,6 +42,17 @@ def get_average(l):
     return sum(l)/len(l)
 
 def is_within_standard_deviation(prediction, labels):
+    """Return True if `prediction` is considered close enough to `labels`.
+
+    The similarity criterion follows two rules (matching the project's
+    evaluation convention):
+    - The `prediction` is within +/- the sample standard deviation from
+      the average human score.
+    - OR the absolute difference between the prediction and the average
+      is < 1.
+
+    If either condition holds, the prediction is counted as correct.
+    """
     avg = get_average(labels)
     stdev = get_standard_deviation(labels)
 
@@ -101,6 +134,9 @@ if __name__ == "__main__":
         print("No file data/" + testset + ".json found. Make sure the name of the set (train/dev/test) is specified in command line argument #2")
         sys.exit()
 
+    # Verify formatting of the predictions file against the gold data.
+    # The check_formatting function should detect invalid ids or missing
+    # fields and return False if there are problems.
     if not check_formatting(predictions_filepath, gold_data):
         sys.exit()
 
