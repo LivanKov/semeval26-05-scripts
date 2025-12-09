@@ -32,6 +32,8 @@ from pydantic import BaseModel
 LLAMA = "meta-llama/Meta-Llama-3.1-8B-Instruct"
 QWEN = "Qwen/Qwen3-VL-8B-Instruct"
 GPT = "openai/gpt-oss-20b"
+LLAMA_2 = "meta-llama/Llama-3.2-3B-Instruct"
+WSD_FINETUNED = "afafasdfasfa/wsd-llama3.2-lora"
 
 DEFAULT_SYSTEM_PROMPT = (
     "Are an expert in word-sense disambiguation, able to precisely interpret the meaning of words within a sentence, regardless of the context surrounding them"
@@ -78,7 +80,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model-id",
-        default=GPT
+        default=LLAMA_2,
     )
     parser.add_argument(
         "--token",
@@ -187,7 +189,7 @@ def main() -> None:
 
     args = parse_args()
     client = InferenceClient(
-        ##provider="cerebras",
+        provider="novita",
         api_key=args.token
     )
 
