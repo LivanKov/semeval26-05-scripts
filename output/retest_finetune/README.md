@@ -1,0 +1,1 @@
+This directory contains comparing the results of the finetuned model with the results of the original model. The main goal is to achieve a better performance on the test set, via a repeated finetune of the gpt-oss model.
